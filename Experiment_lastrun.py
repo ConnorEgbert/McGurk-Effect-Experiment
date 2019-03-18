@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 This experiment was created using PsychoPy3 Experiment Builder (v3.0.5),
-    on Wed Mar  6 15:13:14 2019
+    on Mon Mar 18 12:27:34 2019
 If you publish work using this script please cite the PsychoPy publications:
     Peirce, JW (2007) PsychoPy - Psychophysics software in Python.
         Journal of Neuroscience Methods, 162(1-2), 8-13.
@@ -43,7 +43,7 @@ filename = _thisDir + os.sep + u'data/%s_%s_%s' % (expInfo['participant'], expNa
 # An ExperimentHandler isn't essential but helps with data saving
 thisExp = data.ExperimentHandler(name=expName, version='',
     extraInfo=expInfo, runtimeInfo=None,
-    originPath='/Users/x/Documents/PsychoPy/Experiment/Experiment_lastrun.py',
+    originPath='/Users/x/Documents/McGurk-Effect-Experiment/Experiment_lastrun.py',
     savePickle=True, saveWideText=True,
     dataFileName=filename)
 # save a log file for detail verbose info
@@ -78,7 +78,7 @@ Intro_text = visual.TextStim(win=win, name='Intro_text',
     languageStyle='LTR',
     depth=0.0);
 text = visual.TextStim(win=win, name='text',
-    text='Press b if the speaker says "BA".\nPress d if the speaker says "DA".\nPress g if the speaker says "GA".',
+    text='Wait for the speaker to finish.\nPress b if the speaker says "BA".\nPress d if the speaker says "DA".\nPress g if the speaker says "GA".',
     font='Arial',
     pos=(0, 0), height=0.1, wrapWidth=10, ori=0, 
     color='white', colorSpace='rgb', opacity=1, 
@@ -87,18 +87,19 @@ text = visual.TextStim(win=win, name='text',
 
 # Initialize components for Routine "Video_Tuning"
 Video_TuningClock = core.Clock()
-debug = False
+debug = True
 accuracy = 0
 target_accuracy = .5
 noise_level = 0
+minimum_iterations = 10
 
-ba = []
-da = []
-ga = []
+margin_of_error = .05
+
+options = ["BA", "DA", "GA"]
 video_stimulus = visual.MovieStim3(
     win=win, name='video_stimulus',
     noAudio = True,
-    filename='pop.mov',
+    filename='GA.mov',
     ori=0, pos=(0, 0), opacity=1,
     depth=-1.0,
     )
@@ -109,10 +110,40 @@ prompt = visual.TextStim(win=win, name='prompt',
     color='white', colorSpace='rgb', opacity=1, 
     languageStyle='LTR',
     depth=-2.0);
+video_noise = visual.NoiseStim(
+    win=win, name='video_noise',
+    noiseImage=None, mask=None,
+    ori=0, pos=(0, 0), size=(1, 1), sf=None, phase=0.0,
+    color=[1,1,1], colorSpace='rgb', opacity=1, blendmode='avg', contrast=1.0,
+    texRes=128,
+    noiseType='Isotropic', noiseElementSize=0.0625, noiseBaseSf=8.0,
+    noiseBW=1, noiseBWO=1, noiseFractalPower=0.0,noiseFilterLower=1.0, noiseFilterUpper=8.0, noiseFilterOrder=0.0, noiseClip=3.0, interpolate=False, depth=-3.0)
+video_noise.buildNoise()
 
 # Initialize components for Routine "Audio_Tuning"
 Audio_TuningClock = core.Clock()
-debug = False
+debug = True
+accuracy = 0
+target_accuracy = .5
+noise_level = 0
+minimum_iterations = 10
+
+margin_of_error = .05
+Audio_from_video_file = visual.MovieStim3(
+    win=win, name='Audio_from_video_file',
+    noAudio = False,
+    filename='GA.mov',
+    ori=0, pos=(0, 0), opacity=1,
+    size=(0, 0),
+    depth=-1.0,
+    )
+audio_text = visual.TextStim(win=win, name='audio_text',
+    text='Audio is playing.',
+    font='Arial',
+    pos=(0, 0), height=0.1, wrapWidth=None, ori=0, 
+    color='white', colorSpace='rgb', opacity=1, 
+    languageStyle='LTR',
+    depth=-2.0);
 
 # Initialize components for Routine "Outro"
 OutroClock = core.Clock()
@@ -197,38 +228,54 @@ frameN = -1
 continueRoutine = True
 # update component parameters for each repeat
 from psychopy import core
+import random
+
+output_stim = video_stimulus
+
+def start_video(video_file, noise_level):
+    output_stim.setMovie(video_file)
+    output_stim.seek(0)
+    output_stim.play()
+    while output_stim.status != visual.FINISHED:
+        output_stim.draw()
+        video_noise.draw
+        win.flip()
 
 ## Setup Section
-video_stimulus.setMovie("pop.mov")
+iteration_count = 0
+target_met = False
+
+subject_video_answers = [[] for x in range(len(options))]
 
 ## Experiment Section
-# Play the video
-while True:
-    video_stimulus.seek(0)
-    video_stimulus.play()
-    while video_stimulus.status != visual.FINISHED:
-        video_stimulus.draw()
-        win.flip()
+while iteration_count < minimum_iterations:
+    # Select a stimulus from the list of files
+    correct_answer_index = random.randint(0, len(options)-1)
+    correct_answer = options[correct_answer_index]
+    test_file = correct_answer + ".mov"
+    correct_answer = correct_answer[0].lower()
+    
+    # Play the video
+    start_video(test_file, noise_level)
+    
     # Get response
     prompt.draw()
     win.flip()
-    c = event.waitKeys() # read a character
-    if c[0] == 'y':
+    
+    # Read a character
+    c = event.waitKeys()
+    if c[0] == correct_answer:
+        subject_video_answers[correct_answer_index].append(1)
         noise_level += 1
         accuracy += 1
     elif c[0] == 'space':
         break
     else:
+        subject_video_answers[correct_answer_index].append(0)
         noise_level -= 1
-
-message = visual.TextStim(win, text="Accuracy: {}\nNoise_level: {}".format(accuracy, noise_level))
-message.draw()
-win.flip()
-
-core.wait(3)
-
+    iteration_count += 1
 # keep track of which components have finished
-Video_TuningComponents = [video_stimulus, prompt]
+Video_TuningComponents = [video_stimulus, prompt, video_noise]
 for thisComponent in Video_TuningComponents:
     if hasattr(thisComponent, 'status'):
         thisComponent.status = NOT_STARTED
@@ -261,6 +308,19 @@ while continueRoutine:
     if prompt.status == STARTED and t >= frameRemains:
         prompt.setAutoDraw(False)
     
+    # *video_noise* updates
+    if t >= 0.0 and video_noise.status == NOT_STARTED:
+        # keep track of start time/frame for later
+        video_noise.tStart = t
+        video_noise.frameNStart = frameN  # exact frame index
+        video_noise.setAutoDraw(True)
+    frameRemains = 0.0 + 0- win.monitorFramePeriod * 0.75  # most of one frame period left
+    if video_noise.status == STARTED and t >= frameRemains:
+        video_noise.setAutoDraw(False)
+    if video_noise.status == STARTED:
+        if video_noise._needBuild:
+            video_noise.buildNoise()
+    
     # check for quit (typically the Esc key)
     if endExpNow or event.getKeys(keyList=["escape"]):
         core.quit()
@@ -282,7 +342,12 @@ while continueRoutine:
 for thisComponent in Video_TuningComponents:
     if hasattr(thisComponent, "setAutoDraw"):
         thisComponent.setAutoDraw(False)
-print(accuracy, noise_level)
+for index, option in enumerate(subject_video_answers):
+    try:
+        print("Option " + options[index] + " average: %" + str(sum(option)/len(option) * 100))
+    except:
+        pass
+
 # the Routine "Video_Tuning" was not non-slip safe, so reset the non-slip timer
 routineTimer.reset()
 
@@ -293,18 +358,56 @@ frameN = -1
 continueRoutine = True
 # update component parameters for each repeat
 from psychopy import core
+import random
+
+output_stim = Audio_from_video_file
+
+def start_video(video_file, noise_level):
+    output_stim.setMovie(video_file)
+    output_stim.seek(0)
+    output_stim.play()
+    while output_stim.status != visual.FINISHED:
+        audio_text.draw()
+        output_stim.draw()
+        video_noise.draw
+        win.flip()
 
 ## Setup Section
-textString = "Audio_test goes here"
-message = visual.TextStim(win, text=textString)
+iteration_count = 0
+target_met = False
+
+subject_audio_answers = [[] for x in range(len(options))]
 
 ## Experiment Section
-message.draw()
-win.flip()
+while iteration_count < minimum_iterations:
+    # Select a stimulus from the list of files
+    correct_answer_index = random.randint(0, len(options)-1)
+    correct_answer = options[correct_answer_index]
+    test_file = correct_answer + ".mov"
+    correct_answer = correct_answer[0].lower()
+    
+    # Play the video
+    start_video(test_file, noise_level)
+    
+    # Get response
+    prompt.draw()
+    win.flip()
+    
+    # Read a character
+    c = event.waitKeys()
+    if c[0] == correct_answer:
+        subject_audio_answers[correct_answer_index].append(1)
+        noise_level += 1
+        accuracy += 1
+    elif c[0] == 'space':
+        break
+    else:
+        subject_audio_answers[correct_answer_index].append(0)
+        noise_level -= 1
+    iteration_count += 1
 
-core.wait(2.5)
 # keep track of which components have finished
-Audio_TuningComponents = []
+Audio_TuningComponents = [Audio_from_video_file, audio_text]
 for thisComponent in Audio_TuningComponents:
     if hasattr(thisComponent, 'status'):
         thisComponent.status = NOT_STARTED
@@ -316,6 +419,26 @@ while continueRoutine:
     frameN = frameN + 1  # number of completed frames (so 0 is the first frame)
     # update/draw components on each frame
     
+    
+    # *Audio_from_video_file* updates
+    if t >= 0.0 and Audio_from_video_file.status == NOT_STARTED:
+        # keep track of start time/frame for later
+        Audio_from_video_file.tStart = t
+        Audio_from_video_file.frameNStart = frameN  # exact frame index
+        Audio_from_video_file.setAutoDraw(True)
+    frameRemains = 0.0 + 0- win.monitorFramePeriod * 0.75  # most of one frame period left
+    if Audio_from_video_file.status == STARTED and t >= frameRemains:
+        Audio_from_video_file.setAutoDraw(False)
+    
+    # *audio_text* updates
+    if t >= 0.0 and audio_text.status == NOT_STARTED:
+        # keep track of start time/frame for later
+        audio_text.tStart = t
+        audio_text.frameNStart = frameN  # exact frame index
+        audio_text.setAutoDraw(True)
+    frameRemains = 0.0 + 0- win.monitorFramePeriod * 0.75  # most of one frame period left
+    if audio_text.status == STARTED and t >= frameRemains:
+        audio_text.setAutoDraw(False)
     
     # check for quit (typically the Esc key)
     if endExpNow or event.getKeys(keyList=["escape"]):
@@ -338,7 +461,11 @@ while continueRoutine:
 for thisComponent in Audio_TuningComponents:
     if hasattr(thisComponent, "setAutoDraw"):
         thisComponent.setAutoDraw(False)
-
+for index, option in enumerate(subject_audio_answers):
+    try:
+        print("Option " + options[index] + " average: %" + str(sum(option)/len(option) * 100))
+    except:
+        pass
 # the Routine "Audio_Tuning" was not non-slip safe, so reset the non-slip timer
 routineTimer.reset()
 

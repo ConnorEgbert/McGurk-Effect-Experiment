@@ -92,40 +92,79 @@
         <Param name="startVal" updates="None" val="3" valType="code"/>
         <Param name="stopType" updates="None" val="duration (s)" valType="str"/>
         <Param name="stopVal" updates="constant" val="3" valType="code"/>
-        <Param name="text" updates="constant" val="Press b if the speaker says &quot;BA&quot;.&amp;#10;Press d if the speaker says &quot;DA&quot;.&amp;#10;Press g if the speaker says &quot;GA&quot;." valType="str"/>
+        <Param name="text" updates="constant" val="Wait for the speaker to finish.&amp;#10;Press b if the speaker says &quot;BA&quot;.&amp;#10;Press d if the speaker says &quot;DA&quot;.&amp;#10;Press g if the speaker says &quot;GA&quot;." valType="str"/>
         <Param name="units" updates="None" val="from exp settings" valType="str"/>
         <Param name="wrapWidth" updates="constant" val="10" valType="code"/>
       </TextComponent>
     </Routine>
     <Routine name="Audio_Tuning">
       <CodeComponent name="Audio_test">
-        <Param name="Begin Experiment" updates="constant" val="debug = False" valType="extendedCode"/>
+        <Param name="Begin Experiment" updates="constant" val="debug = True&amp;#10;accuracy = 0&amp;#10;target_accuracy = .5&amp;#10;noise_level = 0&amp;#10;minimum_iterations = 10&amp;#10;&amp;#10;margin_of_error = .05" valType="extendedCode"/>
         <Param name="Begin JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Begin JS Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin Routine" updates="constant" val="from psychopy import core&amp;#10;&amp;#10;## Setup Section&amp;#10;textString = &quot;Audio_test goes here&quot;&amp;#10;message = visual.TextStim(win, text=textString)&amp;#10;&amp;#10;## Experiment Section&amp;#10;message.draw()&amp;#10;win.flip()&amp;#10;&amp;#10;core.wait(2.5)" valType="extendedCode"/>
+        <Param name="Begin Routine" updates="constant" val="from psychopy import core&amp;#10;import random&amp;#10;&amp;#10;output_stim = Audio_from_video_file&amp;#10;&amp;#10;def start_video(video_file, noise_level):&amp;#10;    output_stim.setMovie(video_file)&amp;#10;    output_stim.seek(0)&amp;#10;    output_stim.play()&amp;#10;    while output_stim.status != visual.FINISHED:&amp;#10;        audio_text.draw()&amp;#10;        output_stim.draw()&amp;#10;        video_noise.draw&amp;#10;        win.flip()&amp;#10;&amp;#10;## Setup Section&amp;#10;iteration_count = 0&amp;#10;target_met = False&amp;#10;&amp;#10;subject_audio_answers = [[] for x in range(len(options))]&amp;#10;&amp;#10;## Experiment Section&amp;#10;while iteration_count &lt; minimum_iterations:&amp;#10;    # Select a stimulus from the list of files&amp;#10;    correct_answer_index = random.randint(0, len(options)-1)&amp;#10;    correct_answer = options[correct_answer_index]&amp;#10;    test_file = correct_answer + &quot;.mov&quot;&amp;#10;    correct_answer = correct_answer[0].lower()&amp;#10;    &amp;#10;    # Play the video&amp;#10;    start_video(test_file, noise_level)&amp;#10;    &amp;#10;    # Get response&amp;#10;    prompt.draw()&amp;#10;    win.flip()&amp;#10;    &amp;#10;    # Read a character&amp;#10;    c = event.waitKeys()&amp;#10;    if c[0] == correct_answer:&amp;#10;        subject_audio_answers[correct_answer_index].append(1)&amp;#10;        noise_level += 1&amp;#10;        accuracy += 1&amp;#10;    elif c[0] == 'space':&amp;#10;        break&amp;#10;    else:&amp;#10;        subject_audio_answers[correct_answer_index].append(0)&amp;#10;        noise_level -= 1&amp;#10;    iteration_count += 1&amp;#10;" valType="extendedCode"/>
         <Param name="Code Type" updates="None" val="Py" valType="str"/>
         <Param name="Each Frame" updates="constant" val="" valType="extendedCode"/>
         <Param name="Each JS Frame" updates="constant" val="" valType="extendedCode"/>
         <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End Routine" updates="constant" val="" valType="extendedCode"/>
+        <Param name="End Routine" updates="constant" val="for index, option in enumerate(subject_audio_answers):&amp;#10;    try:&amp;#10;        print(&quot;Option &quot; + options[index] + &quot; average: %&quot; + str(sum(option)/len(option) * 100))&amp;#10;    except:&amp;#10;        pass" valType="extendedCode"/>
         <Param name="name" updates="None" val="Audio_test" valType="code"/>
       </CodeComponent>
+      <MovieComponent name="Audio_from_video_file">
+        <Param name="No audio" updates="None" val="False" valType="bool"/>
+        <Param name="backend" updates="None" val="moviepy" valType="str"/>
+        <Param name="durationEstim" updates="None" val="" valType="code"/>
+        <Param name="forceEndRoutine" updates="constant" val="False" valType="bool"/>
+        <Param name="movie" updates="constant" val="GA.mov" valType="str"/>
+        <Param name="name" updates="None" val="Audio_from_video_file" valType="code"/>
+        <Param name="opacity" updates="constant" val="1" valType="code"/>
+        <Param name="ori" updates="constant" val="0" valType="code"/>
+        <Param name="pos" updates="constant" val="(0, 0)" valType="code"/>
+        <Param name="size" updates="constant" val="(0, 0)" valType="code"/>
+        <Param name="startEstim" updates="None" val="" valType="code"/>
+        <Param name="startType" updates="None" val="time (s)" valType="str"/>
+        <Param name="startVal" updates="None" val="0.0" valType="code"/>
+        <Param name="stopType" updates="None" val="duration (s)" valType="str"/>
+        <Param name="stopVal" updates="constant" val="0" valType="code"/>
+        <Param name="units" updates="None" val="from exp settings" valType="str"/>
+      </MovieComponent>
+      <TextComponent name="audio_text">
+        <Param name="color" updates="constant" val="white" valType="str"/>
+        <Param name="colorSpace" updates="constant" val="rgb" valType="str"/>
+        <Param name="durationEstim" updates="None" val="" valType="code"/>
+        <Param name="flip" updates="constant" val="" valType="str"/>
+        <Param name="font" updates="constant" val="Arial" valType="str"/>
+        <Param name="languageStyle" updates="None" val="LTR" valType="str"/>
+        <Param name="letterHeight" updates="constant" val="0.1" valType="code"/>
+        <Param name="name" updates="None" val="audio_text" valType="code"/>
+        <Param name="opacity" updates="constant" val="1" valType="code"/>
+        <Param name="ori" updates="constant" val="0" valType="code"/>
+        <Param name="pos" updates="constant" val="(0, 0)" valType="code"/>
+        <Param name="startEstim" updates="None" val="" valType="code"/>
+        <Param name="startType" updates="None" val="time (s)" valType="str"/>
+        <Param name="startVal" updates="None" val="0.0" valType="code"/>
+        <Param name="stopType" updates="None" val="duration (s)" valType="str"/>
+        <Param name="stopVal" updates="constant" val="0" valType="code"/>
+        <Param name="text" updates="constant" val="Audio is playing." valType="str"/>
+        <Param name="units" updates="None" val="from exp settings" valType="str"/>
+        <Param name="wrapWidth" updates="constant" val="" valType="code"/>
+      </TextComponent>
     </Routine>
     <Routine name="Video_Tuning">
       <CodeComponent name="Video_test">
-        <Param name="Begin Experiment" updates="constant" val="debug = False&amp;#10;accuracy = 0&amp;#10;target_accuracy = .5&amp;#10;noise_level = 0&amp;#10;&amp;#10;ba = []&amp;#10;da = []&amp;#10;ga = []" valType="extendedCode"/>
+        <Param name="Begin Experiment" updates="constant" val="debug = True&amp;#10;accuracy = 0&amp;#10;target_accuracy = .5&amp;#10;noise_level = 0&amp;#10;minimum_iterations = 10&amp;#10;&amp;#10;margin_of_error = .05&amp;#10;&amp;#10;options = [&quot;BA&quot;, &quot;DA&quot;, &quot;GA&quot;]" valType="extendedCode"/>
         <Param name="Begin JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="Begin JS Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="Begin Routine" updates="constant" val="from psychopy import core&amp;#10;&amp;#10;## Setup Section&amp;#10;video_stimulus.setMovie(&quot;pop.mov&quot;)&amp;#10;&amp;#10;## Experiment Section&amp;#10;# Play the video&amp;#10;while True:&amp;#10;    video_stimulus.seek(0)&amp;#10;    video_stimulus.play()&amp;#10;    while video_stimulus.status != visual.FINISHED:&amp;#10;        video_stimulus.draw()&amp;#10;        win.flip()&amp;#10;    # Get response&amp;#10;    prompt.draw()&amp;#10;    win.flip()&amp;#10;    c = event.waitKeys() # read a character&amp;#10;    if c[0] == 'y':&amp;#10;        noise_level += 1&amp;#10;        accuracy += 1&amp;#10;    elif c[0] == 'space':&amp;#10;        break&amp;#10;    else:&amp;#10;        noise_level -= 1&amp;#10;&amp;#10;message = visual.TextStim(win, text=&quot;Accuracy: {}\nNoise_level: {}&quot;.format(accuracy, noise_level))&amp;#10;message.draw()&amp;#10;win.flip()&amp;#10;&amp;#10;core.wait(3)&amp;#10;" valType="extendedCode"/>
+        <Param name="Begin Routine" updates="constant" val="from psychopy import core&amp;#10;import random&amp;#10;&amp;#10;output_stim = video_stimulus&amp;#10;&amp;#10;def start_video(video_file, noise_level):&amp;#10;    output_stim.setMovie(video_file)&amp;#10;    output_stim.seek(0)&amp;#10;    output_stim.play()&amp;#10;    while output_stim.status != visual.FINISHED:&amp;#10;        output_stim.draw()&amp;#10;        video_noise.draw&amp;#10;        win.flip()&amp;#10;&amp;#10;## Setup Section&amp;#10;iteration_count = 0&amp;#10;target_met = False&amp;#10;&amp;#10;subject_video_answers = [[] for x in range(len(options))]&amp;#10;&amp;#10;## Experiment Section&amp;#10;while iteration_count &lt; minimum_iterations:&amp;#10;    # Select a stimulus from the list of files&amp;#10;    correct_answer_index = random.randint(0, len(options)-1)&amp;#10;    correct_answer = options[correct_answer_index]&amp;#10;    test_file = correct_answer + &quot;.mov&quot;&amp;#10;    correct_answer = correct_answer[0].lower()&amp;#10;    &amp;#10;    # Play the video&amp;#10;    start_video(test_file, noise_level)&amp;#10;    &amp;#10;    # Get response&amp;#10;    prompt.draw()&amp;#10;    win.flip()&amp;#10;    &amp;#10;    # Read a character&amp;#10;    c = event.waitKeys()&amp;#10;    if c[0] == correct_answer:&amp;#10;        subject_video_answers[correct_answer_index].append(1)&amp;#10;        noise_level += 1&amp;#10;        accuracy += 1&amp;#10;    elif c[0] == 'space':&amp;#10;        break&amp;#10;    else:&amp;#10;        subject_video_answers[correct_answer_index].append(0)&amp;#10;        noise_level -= 1&amp;#10;    iteration_count += 1" valType="extendedCode"/>
         <Param name="Code Type" updates="None" val="Py" valType="str"/>
         <Param name="Each Frame" updates="constant" val="" valType="extendedCode"/>
         <Param name="Each JS Frame" updates="constant" val="" valType="extendedCode"/>
         <Param name="End Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Experiment" updates="constant" val="" valType="extendedCode"/>
         <Param name="End JS Routine" updates="constant" val="" valType="extendedCode"/>
-        <Param name="End Routine" updates="constant" val="print(accuracy, noise_level)" valType="extendedCode"/>
+        <Param name="End Routine" updates="constant" val="for index, option in enumerate(subject_video_answers):&amp;#10;    try:&amp;#10;        print(&quot;Option &quot; + options[index] + &quot; average: %&quot; + str(sum(option)/len(option) * 100))&amp;#10;    except:&amp;#10;        pass&amp;#10;" valType="extendedCode"/>
         <Param name="name" updates="None" val="Video_test" valType="code"/>
       </CodeComponent>
       <MovieComponent name="video_stimulus">
@@ -133,7 +172,7 @@
         <Param name="backend" updates="None" val="moviepy" valType="str"/>
         <Param name="durationEstim" updates="None" val="" valType="code"/>
         <Param name="forceEndRoutine" updates="constant" val="False" valType="bool"/>
-        <Param name="movie" updates="constant" val="pop.mov" valType="str"/>
+        <Param name="movie" updates="constant" val="GA.mov" valType="str"/>
         <Param name="name" updates="None" val="video_stimulus" valType="code"/>
         <Param name="opacity" updates="constant" val="1" valType="code"/>
         <Param name="ori" updates="constant" val="0" valType="code"/>
@@ -167,6 +206,42 @@
         <Param name="units" updates="None" val="from exp settings" valType="str"/>
         <Param name="wrapWidth" updates="constant" val="" valType="code"/>
       </TextComponent>
+      <NoiseStimComponent name="video_noise">
+        <Param name="blendmode" updates="constant" val="avg" valType="str"/>
+        <Param name="color" updates="constant" val="$[1,1,1]" valType="str"/>
+        <Param name="colorSpace" updates="constant" val="rgb" valType="str"/>
+        <Param name="contrast" updates="constant" val="1.0" valType="code"/>
+        <Param name="durationEstim" updates="None" val="" valType="code"/>
+        <Param name="interpolate" updates="constant" val="nearest" valType="str"/>
+        <Param name="mask" updates="constant" val="None" valType="str"/>
+        <Param name="name" updates="None" val="video_noise" valType="code"/>
+        <Param name="noiseBW" updates="constant" val="1" valType="code"/>
+        <Param name="noiseBWO" updates="constant" val="1" valType="code"/>
+        <Param name="noiseBaseSf" updates="constant" val="8.0" valType="code"/>
+        <Param name="noiseClip" updates="constant" val="3.0" valType="code"/>
+        <Param name="noiseElementSize" updates="constant" val="0.0625" valType="code"/>
+        <Param name="noiseFilterLower" updates="constant" val="1.0" valType="code"/>
+        <Param name="noiseFilterOrder" updates="constant" val="0.0" valType="code"/>
+        <Param name="noiseFilterUpper" updates="constant" val="8.0" valType="code"/>
+        <Param name="noiseFractalPower" updates="constant" val="0.0" valType="code"/>
+        <Param name="noiseImage" updates="constant" val="None" valType="str"/>
+        <Param name="noiseNewSample" updates="constant" val="None" valType="str"/>
+        <Param name="noiseNewSampleWhen" updates="constant" val="1" valType="str"/>
+        <Param name="noiseType" updates="constant" val="Isotropic" valType="str"/>
+        <Param name="opacity" updates="constant" val="1" valType="code"/>
+        <Param name="ori" updates="constant" val="0" valType="code"/>
+        <Param name="phase" updates="constant" val="0.0" valType="code"/>
+        <Param name="pos" updates="constant" val="(0, 0)" valType="code"/>
+        <Param name="sf" updates="constant" val="None" valType="code"/>
+        <Param name="size" updates="constant" val="(1, 1)" valType="code"/>
+        <Param name="startEstim" updates="None" val="" valType="code"/>
+        <Param name="startType" updates="None" val="time (s)" valType="str"/>
+        <Param name="startVal" updates="None" val="0.0" valType="code"/>
+        <Param name="stopType" updates="None" val="duration (s)" valType="str"/>
+        <Param name="stopVal" updates="constant" val="0" valType="code"/>
+        <Param name="texture resolution" updates="constant" val="128" valType="code"/>
+        <Param name="units" updates="None" val="from exp settings" valType="str"/>
+      </NoiseStimComponent>
     </Routine>
   </Routines>
   <Flow>
